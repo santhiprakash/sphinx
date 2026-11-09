@@ -461,6 +461,13 @@
 \def\spx@verb@@InhibitLineNumber{%
     \let\FV@LeftListNumber\relax
     \let\FV@RightListNumber\relax
+% Do not let the continuation boxes of a wrapped code line create again the
+% hyperref link target which was already emitted for its first box: fancyvrb
+% (since v4.8) does \MakeLinkTarget{FancyVerbLine} in \FV@ListProcessLine and
+% all boxes recovered from one source line share the same \theHFancyVerbLine
+% value, so pdfTeX warns "destination ... already used, duplicate ignored".
+% \LinkTargetOff exists since LaTeX 2023-06-01 (refs: #14822).
+    \ltx@ifundefined{LinkTargetOff}{}{\LinkTargetOff}%
 }%
 % This will replace fancyvrb's \FV@@PreProcessLine
 % Instead of boxing \FV@Line (which contains the Pygmentized line tokens), we

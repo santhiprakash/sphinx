@@ -16,6 +16,9 @@ Features added
 Bugs fixed
 ----------
 
+* #14822: LaTeX: avoid pdfTeX warnings about duplicate ``FancyVerbLine``
+  destinations when a long code-block line is reflowed during PDF build.
+  Patch by Santhi Prakash
 * #14797: Add missing hyphen to CVE and CWE role formats.
   Patch by Hugo van Kemenade
 

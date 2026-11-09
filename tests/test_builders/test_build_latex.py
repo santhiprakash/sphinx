@@ -60,7 +60,7 @@ def compile_latex_document(
     filename: str = 'projectnamenotset.tex',
     docclass: str = 'manual',
     runtwice: bool = False,
-) -> None:
+) -> str:
     # now, try to run latex over it
     try:
         with chdir(app.outdir):
@@ -77,7 +77,8 @@ def compile_latex_document(
                 f'-output-directory={latex_outputdir}',
                 filename,
             ]
-            subprocess.run(args, capture_output=True, check=True)
+            result = subprocess.run(args, capture_output=True, check=True)
+            output = result.stdout.decode('utf8')
             # Run a second time (if engine is pdflatex), to have a chance to
             # detect problems caused on second LaTeX pass (for example, this
             # is required for the TOC in PDF to show up, for internal
@@ -88,7 +89,9 @@ def compile_latex_document(
             # or latexmkjarc and also sphinx.xdy and other xindy support.
             # And two passes are not enough except for simplest documents.
             if runtwice:
-                subprocess.run(args, capture_output=True, check=True)
+                result = subprocess.run(args, capture_output=True, check=True)
+                output += result.stdout.decode('utf8')
+            return output
     except OSError as exc:  # most likely the latex executable was not found
         raise pytest.skip.Exception from exc
     except CalledProcessError as exc:
@@ -2317,3 +2320,18 @@ def test_latex_contents_topic_sidebar(app: SphinxTestApp) -> None:
         'text of sidebar\n'
         '\\end{sphinxsidebar}\n'
     ) in result
+
+
+@skip_if_requested
+@skip_if_stylefiles_notfound
+@pytest.mark.sphinx('latex', testroot='latex-wrapped-code-line')
+def test_latex_wrapped_code_line_no_duplicate_destination(
+    app: SphinxTestApp,
+) -> None:
+    # the testroot contains a code-block line longer than \linewidth; when it
+    # is reflowed into several boxes, each box used to emit again the same
+    # "FancyVerbLine.<env>.<line>" hyperref destination, and pdfTeX reported
+    # "destination with the same identifier ... duplicate ignored" (#14822)
+    app.build(force_all=True)
+    output = compile_latex_document(app, 'projectnamenotset.tex')
+    assert 'destination with the same identifier' not in output

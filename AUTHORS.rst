@@ -106,6 +106,7 @@ Contributors
 * \A. Rafey Khan -- improved intersphinx typing
 * Rui Pinheiro -- Python 3.14 forward references support
 * Roland Meister -- epub builder
+* Santhi Prakash -- LaTeX builder fixes
 * Sebastian Wiesner -- image handling, distutils support
 * Slawek Figiel -- additional warning suppression
 * Stefan Seefeld -- toctree improvements
